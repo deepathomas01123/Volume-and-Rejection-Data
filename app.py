@@ -13,7 +13,7 @@ st.markdown("Forecast vs Actual volumes with rejection rate trends")
 def load_data():
     p12 = pd.read_excel("data/Past 12 months.xlsx")
     py  = pd.read_excel("data/Year Previous.xlsx")
-    cal = pd.read_excel("data/Berries_Fiscal_Calendar.xlsx", sheet_name="Sheet2")
+    cal = pd.read_excel("data/Berries Fiscal Calendar.xlsx", sheet_name="Sheet2")
     return p12, py, cal
 
 try:
@@ -23,7 +23,7 @@ except FileNotFoundError:
         "Please place files in the data/ folder:\n"
         "- `data/Past 12 months.xlsx`\n"
         "- `data/Year Previous.xlsx`\n"
-        "- `data/Berries_Fiscal_Calendar.xlsx`"
+        "- `data/Berries Fiscal Calendar.xlsx`"
     )
     st.stop()
 
