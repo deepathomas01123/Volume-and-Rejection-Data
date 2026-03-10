@@ -13,7 +13,7 @@ st.markdown("Forecast vs Actual volumes with rejection rate trends")
 def load_data():
     p12 = pd.read_excel("data/Past 12 months.xlsx")
     py  = pd.read_excel("data/Year Previous.xlsx")
-    cal = pd.read_excel("data/Berries Fiscal Calendar.xlsx", sheet_name="Sheet2")
+    cal = pd.read_excel("data/Berries_Fiscal_Calendar.xlsx", sheet_name="Sheet2")
     return p12, py, cal
 
 try:
@@ -246,11 +246,37 @@ pivot["TOTAL"] = pivot.sum(axis=1)
 
 st.markdown("**Actual Yield Kg — by Fiscal Month** *(colour scale: low=red → high=green)*")
 value_cols = [c for c in pivot.columns if c != "TOTAL"]
+
+def colour_monthly(df):
+    """
+    Matplotlib-free row-wise red→yellow→green colouring.
+    Works on Streamlit Cloud where matplotlib is not installed.
+    """
+    styles = pd.DataFrame("", index=df.index, columns=df.columns)
+    for idx in df.index:
+        row = df.loc[idx, value_cols].dropna()
+        if row.empty:
+            continue
+        lo, hi = row.min(), row.max()
+        rng = hi - lo if hi != lo else 1
+        for col in value_cols:
+            if pd.isna(df.loc[idx, col]):
+                continue
+            t = (df.loc[idx, col] - lo) / rng   # 0 = low (red), 1 = high (green)
+            if t < 0.5:
+                # red -> yellow
+                r, g, b = 220, int(t * 2 * 200), 50
+            else:
+                # yellow -> green
+                r, g, b = int((1 - t) * 2 * 200), 180, 50
+            styles.loc[idx, col] = f"background-color: rgb({r},{g},{b}); color: #111; text-align: right; font-size:13px"
+        styles.loc[idx, "TOTAL"] = "font-weight: bold; text-align: right; font-size:13px"
+    return styles
+
 st.dataframe(
     pivot.style
         .format("{:,.2f}", na_rep="-")
-        .background_gradient(cmap="RdYlGn", axis=1, subset=value_cols)
-        .set_properties(**{"text-align": "right", "font-size": "13px"}),
+        .apply(colour_monthly, axis=None),
     use_container_width=True,
     height=min(80 + len(pivot) * 38, 420),
 )
