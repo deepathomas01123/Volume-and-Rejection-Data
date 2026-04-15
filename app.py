@@ -298,7 +298,7 @@ with st.expander("📊 Monthly Detail — Actual vs Forecast vs Variance"):
             "Forecast (kg)":     "{:,.0f}",
             "Variance (kg)":     "{:+,.0f}",
             "Attainment %":      "{:.1f}%",
-        }).applymap(
+        }).map(
             lambda v: "color: #c0392b; font-weight:bold" if isinstance(v,(int,float)) and v < 0 else "",
             subset=["Variance (kg)"]
         ),
